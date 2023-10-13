@@ -34,8 +34,8 @@
 
         function sendDataToServer(userId, startTime, endTime) {
             $.ajax({
-                url: "http://0.0.0.0:3000/api/saveSessions", // 백엔드 서버의 엔드포인트 URL
-                // url: "http://192.168.110.10:3000/api/saveSessions"
+                // url: "http://0.0.0.0:3000/api/saveSessions", // 백엔드 서버의 엔드포인트 URL
+                url: "http://192.168.110.10:3000/api/saveSessions",
                 method: "POST",
                 data: {
                     userId: user_id,
