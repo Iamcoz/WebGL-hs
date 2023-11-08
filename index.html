@@ -21,9 +21,9 @@
         }
 
         var user_id = getParameterByName('user_id');
-        console.log("User Id: ", user_id);
+        // console.log("User Id: ", user_id);
         var startTime = new Date(); // 유저가 페이지에 접속한 시간
-        console.log("StartTime: ", startTime);
+        // console.log("StartTime: ", startTime);
 
         window.onbeforeunload = function() {
             var endTime = new Date(); // 유저가 페이지를 나갈 때의 시간
@@ -35,7 +35,8 @@
         function sendDataToServer(userId, startTime, endTime) {
             $.ajax({
                 // url: "http://0.0.0.0:3000/api/saveSessions", // 백엔드 서버의 엔드포인트 URL
-                url: "http://192.168.110.10:3000/api/saveSessions",
+                // url: "http://192.168.110.10:3000/api/saveSessions",
+                url: "https://172.16.10.120:3000/api/saveSessions",
                 method: "POST",
                 data: {
                     userId: user_id,
@@ -43,7 +44,7 @@
                     endTime: endTime.toISOString()
                 },
                 success: function(response) {
-                    console.log("Data sent successfully:", response);
+                    // console.log("Data sent successfully:", response);
                 },
                 error: function(error) {
                     console.error("Error sending data:", error);
