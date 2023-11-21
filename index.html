@@ -8,6 +8,52 @@
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+  <!-- url에서 암호화된 user_id 받아오고 서버에서 검증 -->
+  <script type="text/javascript">
+    $(document).ready(function () {
+      // URL에서 user_id 파라미터를 가져오기
+      const queryParams = new URLSearchParams(window.location.search);
+      let encryptedUserId = queryParams.get('user_id');
+
+      // '+' 문자가 공백으로 변환된 것을 다시 '+'로 복원
+      if (encryptedUserId) {
+        encryptedUserId = encryptedUserId.replace(/ /g, '+');
+      }
+
+      console.log("Encrypted User ID from URL: ", encryptedUserId); // 로그 찍기
+
+      var startTime = new Date(); // 유저가 페이지에 접속한 시간
+      console.log("StartTime: ", startTime);
+
+      window.onbeforeunload = function () {
+        var endTime = new Date(); // 유저가 페이지를 나갈 때의 시간
+
+        // 서버로 데이터를 전송
+        sendDataToServer(encryptedUserId, startTime, endTime);
+      }
+
+      function sendDataToServer(userId, startTime, endTime) {
+        $.ajax({
+          url: "https://hsgreenedu.or.kr:442/api/saveSessions",
+          method: "POST",
+          contentType: 'application/json',
+          data: JSON.stringify({
+            userId: userId,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString()
+          }),
+          success: function (response) {
+            console.log("Data sent successfully:", response);
+          },
+          error: function (error) {
+            console.error("Error sending data:", error);
+          }
+        });
+      }
+    });
+  </script>
 </head>
 
 <body>
@@ -26,8 +72,8 @@
       <div id="unity-build-title">생태체험 컨텐츠</div>
     </div>
   </div>
-
   <script>
+
     var container = document.querySelector("#unity-container");
     var canvas = document.querySelector("#unity-canvas");
     var loadingBar = document.querySelector("#unity-loading-bar");
@@ -35,6 +81,12 @@
     var fullscreenButton = document.querySelector("#unity-fullscreen-button");
     var warningBanner = document.querySelector("#unity-warning");
 
+    // Shows a temporary message banner/ribbon for a few seconds, or
+    // a permanent error message on top of the canvas if type=='error'.
+    // If type=='warning', a yellow highlight color is used.
+    // Modify or remove this function to customize the visually presented
+    // way that non-critical warnings and error messages are presented to the
+    // user.
     function unityShowBanner(msg, type) {
       function updateBannerVisibility() {
         warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
@@ -66,6 +118,13 @@
       showBanner: unityShowBanner,
     };
 
+    // By default Unity keeps WebGL canvas render target size matched with
+    // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+    // Set this to false if you want to decouple this synchronization from
+    // happening inside the engine, and you would instead like to size up
+    // the canvas DOM size and WebGL render target sizes yourself.
+    // config.matchWebGLToCanvasSize = false;
+
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       // Mobile device style: fill the whole browser client area with the game canvas:
 
@@ -75,6 +134,11 @@
       document.getElementsByTagName('head')[0].appendChild(meta);
       container.className = "unity-mobile";
       canvas.className = "unity-mobile";
+
+      // To lower canvas resolution on mobile devices to gain some
+      // performance, uncomment the following line:
+      // config.devicePixelRatio = 1;
+
 
     } else {
       // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
@@ -103,51 +167,6 @@
     document.body.appendChild(script);
 
   </script>
-
-  <!-- url에서 암호화된 user_id 받아오기 -->
-  <script type="text/javascript">
-    $(document).ready(function () {
-      // URL에서 user_id 파라미터를 가져오기
-      const queryParams = new URLSearchParams(window.location.search);
-      let encryptedUserId = queryParams.get('user_id');
-
-      // '+' 문자가 공백으로 변환된 것을 다시 '+'로 복원
-      if (encryptedUserId) {
-        encryptedUserId = encryptedUserId.replace(/ /g, '+');
-      }
-
-      console.log("Encrypted User ID from URL: ", encryptedUserId); // 로그 찍기
-
-      var startTime = new Date(); // 유저가 페이지에 접속한 시간
-      console.log("StartTime: ", startTime);
-
-      window.onbeforeunload = function () {
-        var endTime = new Date(); // 유저가 페이지를 나갈 때의 시간
-
-        // 서버로 데이터를 전송
-        sendDataToServer(encryptedUserId, startTime, endTime);
-      }
-
-      function sendDataToServer(userId, startTime, endTime) {
-        $.ajax({
-          url: "https://hsgreenedu.or.kr:442/api/saveSessions",
-          // url: "http://172.16.10.120:3000/api/saveSessions",
-          // url: "http://localhost:3000/api/saveSessions",
-          method: "POST",
-          data: {
-            userId: userId,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString()
-          },
-          success: function (response) {
-            console.log("Data sent successfully:", response);
-          },
-          error: function (error) {
-            console.error("Error sending data:", error);
-          }
-        });
-      }
-    });
-  </script>
 </body>
+
 </html>
