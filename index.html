@@ -27,30 +27,46 @@
     </div>
   </div>
   
-  <!-- url에서 암호화된 user_id 받아오고 서버에서 검증 -->
   <script type="text/javascript">
     $(document).ready(function () {
       // URL에서 user_id 파라미터를 가져오기
       const queryParams = new URLSearchParams(window.location.search);
       let encryptedUserId = queryParams.get('user_id');
-
+  
       // '+' 문자가 공백으로 변환된 것을 다시 '+'로 복원
-      if (encryptedUserId) {
-        encryptedUserId = encryptedUserId.replace(/ /g, '+');
-      }
-
+      encryptedUserId = encryptedUserId ? encryptedUserId.replace(/ /g, '+') : "null";
+  
       console.log("Encrypted User ID from URL: ", encryptedUserId); // 로그 찍기
-
+  
+      // 서버에 유저 유효성 확인 요청 보내기
+      validateUserId(encryptedUserId);
+  
       var startTime = new Date(); // 유저가 페이지에 접속한 시간
       console.log("StartTime: ", startTime);
-
+  
       window.onbeforeunload = function () {
         var endTime = new Date(); // 유저가 페이지를 나갈 때의 시간
-
+  
         // 서버로 데이터를 전송
         sendDataToServer(encryptedUserId, startTime, endTime);
       }
-
+  
+      function validateUserId(userId) {
+        $.ajax({
+          url: 'https://hsgreenedu.or.kr:442/api/validateUserId',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ userId: userId }),
+          success: function (response) {
+            console.log("Response from validateUserId: ", response); // 성공 응답 로그
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error in validateUserId: ", textStatus, errorThrown); // 오류 로그
+            encryptedUserId = "null"; // 오류 발생시 userId를 "null"로 설정
+          }
+        });
+      }
+  
       function sendDataToServer(userId, startTime, endTime) {
         $.ajax({
           url: "https://hsgreenedu.or.kr:442/api/saveSessions",
@@ -71,6 +87,7 @@
       }
     });
   </script>
+  
   <script>
 
     var container = document.querySelector("#unity-container");
