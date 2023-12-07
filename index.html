@@ -4,15 +4,26 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 모바일 화면 최적화 -->
   <title>생태체험 콘텐츠</title>
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- 사용자 맞춤 화면 크기 -->
+  <style>
+    #unity-canvas {
+      width: 100%;
+      height: auto;
+      max-width: 1920px;
+      max-height: 1080px;
+    }
+  </style>
 </head>
 
 <body>
   <div id="unity-container" class="unity-desktop">
-    <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
     <div id="unity-loading-bar">
       <div id="unity-logo"></div>
       <div id="unity-progress-bar-empty">
@@ -21,36 +32,54 @@
     </div>
     <div id="unity-warning"> </div>
     <div id="unity-footer">
-      <div id="unity-webgl-logo"></div>
+      <!-- <div id="unity-webgl-logo"></div> -->
       <div id="unity-fullscreen-button"></div>
       <div id="unity-build-title">생태체험 콘텐츠</div>
     </div>
   </div>
-  
+
   <script type="text/javascript">
     $(document).ready(function () {
+
+      /* webgl 페이지 접속자 수 관리 */
+      window.onload = function () {
+        // WebGL 페이지 로드 시 서버에 접속자 수 증가 요청
+        fetch('/webgl_access').then(response => response.json()).then(data => {
+          if (!data.success) {
+            // 동시 접속자 수가 초과된 경우의 처리 (예: over_capacity 페이지로 리디렉션)
+            window.location.href = '/over_capacity';
+          }
+        });
+      };
+
+      window.onbeforeunload = function () {
+        // 페이지를 떠날 때 서버에 접속자 수 감소 요청
+        fetch('/unregister_webgl_user');
+      };
+
+      /* 회원/비회원 검증 */
       // URL에서 user_id 파라미터를 가져오기
       const queryParams = new URLSearchParams(window.location.search);
       let encryptedUserId = queryParams.get('user_id');
-  
+
       // '+' 문자가 공백으로 변환된 것을 다시 '+'로 복원
       encryptedUserId = encryptedUserId ? encryptedUserId.replace(/ /g, '+') : "null";
-  
+
       console.log("Encrypted User ID from URL: ", encryptedUserId); // 로그 찍기
-  
+
       // 서버에 유저 유효성 확인 요청 보내기
       validateUserId(encryptedUserId);
-  
+
       var startTime = new Date(); // 유저가 페이지에 접속한 시간
       console.log("StartTime: ", startTime);
-  
+
       window.onbeforeunload = function () {
         var endTime = new Date(); // 유저가 페이지를 나갈 때의 시간
-  
+
         // 서버로 데이터를 전송
         sendDataToServer(encryptedUserId, startTime, endTime);
       }
-  
+
       function validateUserId(userId) {
         $.ajax({
           url: 'https://hsgreenedu.or.kr:442/api/validateUserId',
@@ -66,7 +95,7 @@
           }
         });
       }
-  
+
       function sendDataToServer(userId, startTime, endTime) {
         $.ajax({
           url: "https://hsgreenedu.or.kr:442/api/saveSessions",
@@ -87,7 +116,7 @@
       }
     });
   </script>
-  
+
   <script>
 
     var container = document.querySelector("#unity-container");
