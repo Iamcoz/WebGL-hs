@@ -90,8 +90,9 @@
             console.log("Response from validateUserId: ", response); // 성공 응답 로그
           },
           error: function (jqXHR, textStatus, errorThrown) {
-            console.log("Error in validateUserId: ", textStatus, errorThrown); // 오류 로그
-            encryptedUserId = "null"; // 오류 발생시 userId를 "null"로 설정
+            console.log("AJAX error: ", textStatus, "; Error thrown: ", errorThrown, "; jqXHR: ", jqXHR); // 오류 정보 로그
+            alert('유효하지 않은 사용자 아이디입니다.');
+            window.location.href = 'https://greencityhs.or.kr';
           }
         });
       }
