@@ -82,7 +82,7 @@
 
       function validateUserId(userId) {
         $.ajax({
-          url: 'https://hsgreenedu.or.kr/api/validateUserId',
+          url: 'https://hsgreenedu.or.kr:442/api/validateUserId',
           type: 'POST',
           contentType: 'application/json',
           data: JSON.stringify({ userId: userId }),
@@ -99,7 +99,7 @@
 
       function sendDataToServer(userId, startTime, endTime) {
         $.ajax({
-          url: "https://hsgreenedu.or.kr/api/saveSessions",
+          url: "https://hsgreenedu.or.kr:442/api/saveSessions",
           method: "POST",
           contentType: 'application/json',
           data: JSON.stringify({
